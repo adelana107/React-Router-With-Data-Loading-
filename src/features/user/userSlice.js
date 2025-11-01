@@ -1,21 +1,44 @@
+// Get user's geolocation
 function getPosition() {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation)
+      reject(new Error("Geolocation is not supported by your browser."));
     navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 }
 
-async function fetchAddress() {
-  // 1) We get the user's geolocation position
-  const positionObj = await getPosition();
-  const position = {
-    latitude: positionObj.coords.latitude,
-    longitude: positionObj.coords.longitude,
-  };
+// Fetch reverse geocoded address using BigDataCloud API
+async function getAddress({ latitude, longitude }) {
+  const res = await fetch(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+  );
 
-  // 2) Then we use a reverse geocoding API to get a description of the user's address, so we can display it the order form, so that the user can correct it if wrong
-  const addressObj = await getAddress(position);
-  const address = `${addressObj?.locality}, ${addressObj?.city} ${addressObj?.postcode}, ${addressObj?.countryName}`;
+  if (!res.ok) throw new Error("Failed to fetch address data.");
 
-  // 3) Then we return an object with the data that we are interested in
-  return { position, address };
+  const data = await res.json();
+  return data;
+}
+
+// Combine everything: position + address string
+export async function fetchAddress() {
+  try {
+    // 1️⃣ Get position
+    const positionObj = await getPosition();
+    const position = {
+      latitude: positionObj.coords.latitude,
+      longitude: positionObj.coords.longitude,
+    };
+
+    // 2️⃣ Reverse geocode
+    const addressObj = await getAddress(position);
+    const address = `${addressObj.locality || ""}, ${addressObj.city || ""} ${
+      addressObj.postcode || ""
+    }, ${addressObj.countryName || ""}`.trim();
+
+    // 3️⃣ Return data
+    return { position, address };
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    throw error;
+  }
 }

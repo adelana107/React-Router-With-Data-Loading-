@@ -1,10 +1,11 @@
+import { formatCurrency } from "../../utils/helpers";
 function CartItem({ item }) {
   const { pizzaId, name, quantity, totalPrice } = item;
 
   return (
-    <li>
+    <li key={pizzaId}>
       <p>
-        {quantity}&times; {name}
+        {quantity} × {name}
       </p>
       <div>
         <p>{formatCurrency(totalPrice)}</p>

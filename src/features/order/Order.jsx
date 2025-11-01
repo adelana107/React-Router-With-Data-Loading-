@@ -39,10 +39,11 @@ const order = {
   position: "-9.000,38.000",
   orderPrice: 95,
   priorityPrice: 19,
+  status: "preparing", // ✅ Added missing property
 };
 
 function Order() {
-  // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
+  // For privacy, exclude sensitive info — only display relevant details
   const {
     id,
     status,
@@ -50,17 +51,18 @@ function Order() {
     priorityPrice,
     orderPrice,
     estimatedDelivery,
-    cart,
+    // cart,
   } = order;
+
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
   return (
     <div>
       <div>
-        <h2>Status</h2>
+        <h2>Order #{id}</h2>
 
         <div>
-          {priority && <span>Priority</span>}
+          {priority && <span>🔥 Priority</span>}
           <span>{status} order</span>
         </div>
       </div>
@@ -68,16 +70,23 @@ function Order() {
       <div>
         <p>
           {deliveryIn >= 0
-            ? `Only ${calcMinutesLeft(estimatedDelivery)} minutes left 😃`
+            ? `Only ${deliveryIn} minutes left 😃`
             : "Order should have arrived"}
         </p>
         <p>(Estimated delivery: {formatDate(estimatedDelivery)})</p>
       </div>
 
       <div>
-        <p>Price pizza: {formatCurrency(orderPrice)}</p>
-        {priority && <p>Price priority: {formatCurrency(priorityPrice)}</p>}
-        <p>To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}</p>
+        <p>Price of pizzas: {formatCurrency(orderPrice)}</p>
+        {priority && (
+          <p>Priority fee: {formatCurrency(priorityPrice)}</p>
+        )}
+        <p>
+          <strong>
+            To pay on delivery:{" "}
+            {formatCurrency(orderPrice + (priority ? priorityPrice : 0))}
+          </strong>
+        </p>
       </div>
     </div>
   );

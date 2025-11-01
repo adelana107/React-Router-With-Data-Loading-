@@ -31,7 +31,15 @@ function Cart() {
     <div>
       <Link to="/menu">&larr; Back to menu</Link>
 
-      <h2>Your cart, %NAME%</h2>
+      <h2>Your cart, {/* Replace %NAME% with actual user name if available */}Customer</h2>
+
+      <ul>
+        {cart.map((item) => (
+          <li key={item.pizzaId}>
+            {item.name} — {item.quantity} × ${item.unitPrice} = ${item.totalPrice}
+          </li>
+        ))}
+      </ul>
 
       <div>
         <Link to="/order/new">Order pizzas</Link>
