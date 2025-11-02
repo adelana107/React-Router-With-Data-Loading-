@@ -1,16 +1,26 @@
 import { useState } from "react";
-import { Form, redirect } from "react-router-dom";
+import { Form, redirect, useNavigation, useActionData } from "react-router-dom";
+
+// ✅ Utility function to validate phone numbers
+function isValidPhone(str) {
+  return /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
+    str
+  );
+}
 
 // ✅ Fake API function to create an order
 async function createOrder(orderData) {
-  // Simulate sending order to backend
   console.log("Sending order to server:", orderData);
-  // Fake response with order ID
-  return { id: "ABC123" };
+  return { id: "ABC123" }; // Fake order ID
 }
 
 // ✅ CreateOrder Component
 function CreateOrder() {
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+
+  const formErrors = useActionData();
+
   const [withPriority, setWithPriority] = useState(false);
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
@@ -65,6 +75,7 @@ function CreateOrder() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
+          {formErrors?.phone  && <p>{formErrors.phone}</p>}
         </div>
 
         <div>
@@ -92,7 +103,9 @@ function CreateOrder() {
         <input type="hidden" name="cart" value={JSON.stringify(cart)} />
 
         <div>
-          <button type="submit">Order now</button>
+          <button disabled={isSubmitting}>
+            {isSubmitting ? "Placing order..." : "Order now"}
+          </button>
         </div>
       </Form>
     </div>
@@ -110,7 +123,14 @@ export async function action({ request }) {
     priority: data.priority === "on",
   };
 
-  const newOrder = await createOrder(order); // Now createOrder is defined
+  const errors = {};
+  if (!isValidPhone(order.phone))
+    errors.phone =
+      "Please give us your correct phone number, we might need it to contact you";
+
+  if (Object.keys(errors).length > 0) return errors;
+
+  const newOrder = await createOrder(order);
   return redirect(`/order/${newOrder.id}`);
 }
 
