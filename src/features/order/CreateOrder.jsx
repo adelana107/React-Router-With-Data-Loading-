@@ -8,10 +8,14 @@ function isValidPhone(str) {
   );
 }
 
-// ✅ Fake API function to create an order
 async function createOrder(orderData) {
-  console.log("Sending order to server:", orderData);
-  return { id: "ABC123" }; // Fake order ID
+  const res = await fetch("https://react-fast-pizza-api.jonas.io/api/order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderData),
+  });
+  if (!res.ok) throw new Error("Failed to create order");
+  return await res.json(); // returns {id: "REAL_ID", ...}
 }
 
 // ✅ CreateOrder Component
@@ -75,7 +79,7 @@ function CreateOrder() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
-          {formErrors?.phone  && <p>{formErrors.phone}</p>}
+          {formErrors?.phone && <p>{formErrors.phone}</p>}
         </div>
 
         <div>
