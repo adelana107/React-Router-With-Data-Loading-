@@ -1,53 +1,53 @@
-import { useState } from "react";
-import { Form, redirect, useNavigation, useActionData } from "react-router-dom";
+import { useState } from 'react';
+import { Form, redirect, useNavigation, useActionData } from 'react-router-dom';
 
 // ✅ Utility function to validate phone numbers
 function isValidPhone(str) {
   return /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
+    str,
   );
 }
 
 async function createOrder(orderData) {
-  const res = await fetch("https://react-fast-pizza-api.jonas.io/api/order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+  const res = await fetch('https://react-fast-pizza-api.jonas.io/api/order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(orderData),
   });
-  if (!res.ok) throw new Error("Failed to create order");
+  if (!res.ok) throw new Error('Failed to create order');
   return await res.json(); // returns {id: "REAL_ID", ...}
 }
 
 // ✅ CreateOrder Component
 function CreateOrder() {
   const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
+  const isSubmitting = navigation.state === 'submitting';
 
   const formErrors = useActionData();
 
   const [withPriority, setWithPriority] = useState(false);
-  const [customer, setCustomer] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [customer, setCustomer] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
 
   const cart = [
     {
       pizzaId: 12,
-      name: "Mediterranean",
+      name: 'Mediterranean',
       quantity: 2,
       unitPrice: 16,
       totalPrice: 32,
     },
     {
       pizzaId: 6,
-      name: "Vegetale",
+      name: 'Vegetale',
       quantity: 1,
       unitPrice: 13,
       totalPrice: 13,
     },
     {
       pizzaId: 11,
-      name: "Spinach and Mushroom",
+      name: 'Spinach and Mushroom',
       quantity: 1,
       unitPrice: 15,
       totalPrice: 15,
@@ -84,17 +84,21 @@ function CreateOrder() {
 
         <div>
           <label>Address</label>
-          <input
-            type="text"
-            name="address"
-            required
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
+          <div>
+            <input
+              className="transition:text-stone-400 focus w-full rounded-full border border-stone-200 px-4 py-2 text-sm transition-all duration-300 placeholder:text-stone-400 focus:outline-none focus:ring focus:ring-yellow-400 md:px-6 md:py-3"
+              type="text"
+              name="address"
+              required
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </div>
         </div>
 
         <div>
           <input
+            className="fucus:ring-offset-2 h-6 w-6 accent-yellow-400 focus:outline-none focus:ring focus:ring-yellow-400"
             type="checkbox"
             name="priority"
             id="priority"
@@ -107,8 +111,11 @@ function CreateOrder() {
         <input type="hidden" name="cart" value={JSON.stringify(cart)} />
 
         <div>
-          <button disabled={isSubmitting}>
-            {isSubmitting ? "Placing order..." : "Order now"}
+          <button
+            disabled={isSubmitting}
+            className="disbled:cursor-not-allowed inline-block rounded-full bg-yellow-400 px-4 py-3 font-semibold uppercase tracking-wide text-stone-800 transition-colors duration-300 hover:bg-yellow-300 focus:bg-yellow-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2"
+          >
+            {isSubmitting ? 'Placing order...' : 'Order now'}
           </button>
         </div>
       </Form>
@@ -124,13 +131,13 @@ export async function action({ request }) {
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
-    priority: data.priority === "on",
+    priority: data.priority === 'on',
   };
 
   const errors = {};
   if (!isValidPhone(order.phone))
     errors.phone =
-      "Please give us your correct phone number, we might need it to contact you";
+      'Please give us your correct phone number, we might need it to contact you';
 
   if (Object.keys(errors).length > 0) return errors;
 
