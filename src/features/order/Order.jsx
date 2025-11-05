@@ -1,59 +1,33 @@
-// Test ID: IIDSAT
+import PropTypes from 'prop-types';
 
-import { useLoaderData } from "react-router-dom";
-
-import {
-  calcMinutesLeft,
-  formatCurrency,
-  formatDate,
-} from "../../utils/helpers";
-import { getOrder } from "../../services/apiRestaurant"; // ✅ make sure this path exists!
-
-function Order() {
-  const order = useLoaderData();
-  const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery } =
-    order;
-
-  const deliveryIn = calcMinutesLeft(estimatedDelivery);
-
+function OrderItem({ item, isLoadingIngredients, ingredients }) {
   return (
-    <div>
-      <div>
-        <h2>Order #{id}</h2>
-
-        <div>
-          {priority && <span>🔥 Priority</span>}
-          <span>{status} order</span>
-        </div>
-      </div>
-
+    <li className="flex justify-between py-2 border-b border-stone-200">
       <div>
         <p>
-          {deliveryIn >= 0
-            ? `Only ${deliveryIn} minutes left 😃`
-            : "Order should have arrived"}
+          {item.quantity}× {item.name}
         </p>
-        <p>(Estimated delivery: {formatDate(estimatedDelivery)})</p>
-      </div>
-
-      <div>
-        <p>Price of pizzas: {formatCurrency(orderPrice)}</p>
-        {priority && <p>Priority fee: {formatCurrency(priorityPrice)}</p>}
-        <p>
-          <strong>
-            To pay on delivery:{" "}
-            {formatCurrency(orderPrice + (priority ? priorityPrice : 0))}
-          </strong>
+        <p className="text-sm text-stone-500">
+          {isLoadingIngredients
+            ? 'Loading ingredients...'
+            : ingredients?.join(', ')}
         </p>
       </div>
-    </div>
+      <p className="text-sm font-medium">{item.totalPrice}</p>
+    </li>
   );
 }
 
-// ✅ Re-add the loader export here
-export async function loader({ params }) {
-  const order = await getOrder(params.orderId);
-  return order;
-}
+// ✅ Fix ESLint prop-type warnings
+OrderItem.propTypes = {
+  item: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    quantity: PropTypes.number,
+    totalPrice: PropTypes.number,
+  }).isRequired,
+  isLoadingIngredients: PropTypes.bool,
+  ingredients: PropTypes.arrayOf(PropTypes.string),
+};
 
-export default Order;
+export default OrderItem;
