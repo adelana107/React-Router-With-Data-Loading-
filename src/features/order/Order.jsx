@@ -1,33 +1,88 @@
-import PropTypes from 'prop-types';
+// Test ID: IIDSAT
 
-function OrderItem({ item, isLoadingIngredients, ingredients }) {
+import { useState } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import {
+  calcMinutesLeft,
+  formatCurrency,
+  formatDate,
+} from '../../utils/helpers';
+import { getOrder } from '../../services/apiRestaurant';
+import OrderItem from './OrderItem.jsx';
+
+function Order() {
+  const orderData = useLoaderData();
+  const [order, setOrder] = useState(orderData);
+
+  const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery } =
+    order;
+
+  const deliveryIn = calcMinutesLeft(estimatedDelivery);
+
+  // 🧩 Function to handle removing an item locally
+  function handleRemoveItem(itemId) {
+    const updatedCart = order.cart.filter((item) => item.id !== itemId);
+    setOrder((prev) => ({ ...prev, cart: updatedCart }));
+  }
+
   return (
-    <li className="flex justify-between py-2 border-b border-stone-200">
-      <div>
-        <p>
-          {item.quantity}× {item.name}
+    <div className="space-y-8 px-4 py-6">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-semibold">Order #{id} status</h2>
+
+        <div className="space-x-2">
+          {priority && (
+            <span className="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold tracking-wide text-red-50">
+              🔥 Priority
+            </span>
+          )}
+          <span className="rounded-full bg-green-500 px-3 py-1 text-sm font-semibold tracking-wide text-green-50">
+            {status} order
+          </span>
+        </div>
+      </div>
+
+      {/* Delivery info */}
+      <div className="justify-between flex flex-wrap items-center gap-2 bg-stone-200 px-6 py-5">
+        <p className="font-medium">
+          {deliveryIn >= 0
+            ? `Only ${deliveryIn} minutes left 😃`
+            : 'Order should have arrived'}
         </p>
-        <p className="text-sm text-stone-500">
-          {isLoadingIngredients
-            ? 'Loading ingredients...'
-            : ingredients?.join(', ')}
+        <p className="text-xs text-stone-500">
+          (Estimated delivery: {formatDate(estimatedDelivery)})
         </p>
       </div>
-      <p className="text-sm font-medium">{item.totalPrice}</p>
-    </li>
+
+      {/* Cart items */}
+      <ul>
+        {order.cart.map((item) => (
+          <OrderItem key={item.id} item={item} onRemove={handleRemoveItem} />
+        ))}
+      </ul>
+
+      {/* Totals */}
+      <div className="space-y-2 bg-stone-200 px-6 py-5">
+        <p className="text-sm font-medium text-stone-600">
+          Price of pizzas: {formatCurrency(orderPrice)}
+        </p>
+        {priority && <p>Priority fee: {formatCurrency(priorityPrice)}</p>}
+        <p className="font-bold text-stone-800">
+          <strong>
+            To pay on delivery:{' '}
+            {formatCurrency(orderPrice + (priority ? priorityPrice : 0))}
+          </strong>
+        </p>
+      </div>
+    </div>
   );
 }
 
-// ✅ Fix ESLint prop-type warnings
-OrderItem.propTypes = {
-  item: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    quantity: PropTypes.number,
-    totalPrice: PropTypes.number,
-  }).isRequired,
-  isLoadingIngredients: PropTypes.bool,
-  ingredients: PropTypes.arrayOf(PropTypes.string),
-};
+// ✅ loader for React Router
+export async function loader({ params }) {
+  const order = await getOrder(params.orderId);
+  return order;
+}
 
-export default OrderItem;
+export default Order;
