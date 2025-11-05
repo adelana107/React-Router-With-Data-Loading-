@@ -1,24 +1,25 @@
-import LinkButton from "../ui/LinkButton.jsx";
-import Button from "../ui/Button.jsx";
+import LinkButton from '../ui/LinkButton.jsx';
+import Button from '../ui/Button.jsx';
+import { useSelector } from 'react-redux';
 
 const fakeCart = [
   {
     pizzaId: 12,
-    name: "Mediterranean",
+    name: 'Mediterranean',
     quantity: 2,
     unitPrice: 16,
     totalPrice: 32,
   },
   {
     pizzaId: 6,
-    name: "Vegetale",
+    name: 'Vegetale',
     quantity: 1,
     unitPrice: 13,
     totalPrice: 13,
   },
   {
     pizzaId: 11,
-    name: "Spinach and Mushroom",
+    name: 'Spinach and Mushroom',
     quantity: 1,
     unitPrice: 15,
     totalPrice: 15,
@@ -26,7 +27,9 @@ const fakeCart = [
 ];
 
 function Cart() {
-  const cart = fakeCart;
+  const username = useSelector((state) => state.user.username);
+
+  const cart = fakeCart; // ✅ Replace with Redux state later
 
   return (
     <div className="px-4 py-3">
@@ -35,7 +38,7 @@ function Cart() {
 
       {/* Heading */}
       <h2 className="mt-7 text-lg font-semibold text-stone-800">
-        Your cart, Customer
+        Your cart, {username}
       </h2>
 
       {/* Cart items */}
