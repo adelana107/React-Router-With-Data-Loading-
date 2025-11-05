@@ -1,19 +1,25 @@
 import PropTypes from 'prop-types';
 import Button from '../ui/Button';
-import { useDispatch } from 'react-redux';
-import { addItem } from '../cart/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addItem, getCurrentQuantityById } from '../cart/cartSlice';
+import DeleteItem from '../cart/DeleteItem';
 
 function MenuItem({ pizza }) {
   const dispatch = useDispatch();
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
 
+  // Get current quantity from Redux store
+  const currentQuantity = useSelector(getCurrentQuantityById(id));
+  const isInCart = currentQuantity > 0;
+
+  // Add to cart handler
   function handleAddToCart() {
     const newItem = {
       pizzaId: id,
-      name: name,
+      name,
       quantity: 1,
-      unitPrice: unitPrice,
-      totalPrice: unitPrice * 1,
+      unitPrice,
+      totalPrice: unitPrice,
     };
     dispatch(addItem(newItem));
   }
@@ -33,13 +39,19 @@ function MenuItem({ pizza }) {
           {ingredients.join(', ')}
         </p>
 
-        <div className="mt-auto flex items-center justify-between">
+        <div className="mt-auto flex items-center justify-between gap-2">
           <span>{soldOut ? 'Sold Out' : `${unitPrice} USD`}</span>
 
           {!soldOut ? (
-            <Button type="small" onClick={handleAddToCart}>
-              Add to cart
-            </Button>
+            <>
+              {!isInCart && (
+                <Button type="small" onClick={handleAddToCart}>
+                  Add to cart
+                </Button>
+              )}
+
+              {isInCart && <DeleteItem pizzaId={id} />}
+            </>
           ) : (
             <Button disabled>Sold Out</Button>
           )}
@@ -51,7 +63,7 @@ function MenuItem({ pizza }) {
 
 MenuItem.propTypes = {
   pizza: PropTypes.shape({
-    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // added id
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     name: PropTypes.string.isRequired,
     unitPrice: PropTypes.number.isRequired,
     ingredients: PropTypes.arrayOf(PropTypes.string).isRequired,

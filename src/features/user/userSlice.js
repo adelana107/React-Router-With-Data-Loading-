@@ -10,20 +10,17 @@ const initialState = {
 };
 
 // Async thunk
-export const fetchAddress = createAsyncThunk(
-  'user/fetchAddress',
-  async () => {
-    // Simulated fetch
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          address: '123 Main St, Lagos, Nigeria',
-          position: { latitude: 6.5244, longitude: 3.3792 },
-        });
-      }, 1000);
-    });
-  }
-);
+export const fetchAddress = createAsyncThunk('user/fetchAddress', async () => {
+  // Simulated fetch
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        address: '123 Main St, Lagos, Nigeria',
+        position: { latitude: 6.5244, longitude: 3.3792 },
+      });
+    }, 1000);
+  });
+});
 
 const userSlice = createSlice({
   name: 'user',
@@ -51,5 +48,7 @@ const userSlice = createSlice({
   },
 });
 
+export const getCurrentQuantityById = (id) => (state) =>
+  state.cart.cart.find((item) => item.pizzId === id)?.quantity ?? 0;
 export const { updateName } = userSlice.actions;
 export default userSlice.reducer;
