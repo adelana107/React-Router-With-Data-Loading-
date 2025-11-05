@@ -1,8 +1,22 @@
 import PropTypes from 'prop-types';
 import Button from '../ui/Button';
+import { useDispatch } from 'react-redux';
+import { addItem } from '../cart/cartSlice';
 
 function MenuItem({ pizza }) {
-  const { name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
+  const dispatch = useDispatch();
+  const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
+
+  function handleAddToCart() {
+    const newItem = {
+      pizzaId: id,
+      name: name,
+      quantity: 1,
+      unitPrice: unitPrice,
+      totalPrice: unitPrice * 1,
+    };
+    dispatch(addItem(newItem));
+  }
 
   return (
     <li className="flex gap-4 py-2">
@@ -23,7 +37,9 @@ function MenuItem({ pizza }) {
           <span>{soldOut ? 'Sold Out' : `${unitPrice} USD`}</span>
 
           {!soldOut ? (
-            <Button type="small">Add to cart</Button>
+            <Button type="small" onClick={handleAddToCart}>
+              Add to cart
+            </Button>
           ) : (
             <Button disabled>Sold Out</Button>
           )}
@@ -35,6 +51,7 @@ function MenuItem({ pizza }) {
 
 MenuItem.propTypes = {
   pizza: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired, // added id
     name: PropTypes.string.isRequired,
     unitPrice: PropTypes.number.isRequired,
     ingredients: PropTypes.arrayOf(PropTypes.string).isRequired,
