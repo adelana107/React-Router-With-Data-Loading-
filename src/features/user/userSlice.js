@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getAddress } from '../../services/apiGeocoding'; // ✅ fixed path
 
-// Initial state
 const initialState = {
   username: '',
   address: '',
@@ -9,16 +9,36 @@ const initialState = {
   error: null,
 };
 
-// Async thunk
+// ✅ Corrected thunk using Nominatim response fields
 export const fetchAddress = createAsyncThunk('user/fetchAddress', async () => {
-  // Simulated fetch
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        address: '123 Main St, Lagos, Nigeria',
-        position: { latitude: 6.5244, longitude: 3.3792 },
-      });
-    }, 1000);
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const data = await getAddress({ latitude, longitude });
+
+          // ✅ Nominatim provides `display_name` (a nice full address string)
+          const address =
+            data.display_name ||
+            `${data.address.road || ''}, ${data.address.suburb || ''}, ${
+              data.address.city || data.address.town || data.address.village || ''
+            }, ${data.address.state || ''}, ${data.address.country || ''}`.replace(
+              /,\s*,/g,
+              ','
+            );
+
+          resolve({
+            address,
+            position: { latitude, longitude },
+          });
+        } catch (err) {
+          reject(err);
+        }
+      },
+      (err) => reject(err),
+      { enableHighAccuracy: true }
+    );
   });
 });
 
@@ -48,7 +68,5 @@ const userSlice = createSlice({
   },
 });
 
-export const getCurrentQuantityById = (id) => (state) =>
-  state.cart.cart.find((item) => item.pizzId === id)?.quantity ?? 0;
 export const { updateName } = userSlice.actions;
 export default userSlice.reducer;

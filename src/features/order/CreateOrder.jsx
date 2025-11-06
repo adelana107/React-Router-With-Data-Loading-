@@ -9,7 +9,6 @@ import store from '../../store';
 import { formatCurrency } from '../../utils/helpers';
 import { fetchAddress } from '../user/userSlice';
 
-
 // ✅ Phone number validation regex
 const isValidPhone = (str) =>
   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
@@ -149,7 +148,11 @@ function CreateOrder() {
             }
           />
 
-          <Button disabled={isSubmitting || isLoadingAddress} type="primary">
+          <Button
+            disabled={isSubmitting || isLoadingAddress}
+            type="primary"
+            htmlType="submit" // ✅ make it submit the form
+          >
             {isSubmitting
               ? 'Placing order...'
               : `Order now for ${formatCurrency(totalPrice)}`}

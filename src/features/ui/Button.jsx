@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 
 function Button({
   children,
-  disabled = false, // ✅ default value
+  disabled = false,
   to,
-  type = 'primary', // ✅ default value
-  onClick = () => {}, // ✅ default value
+  type = 'primary',
+  htmlType = 'button', // 👈 new prop for actual HTML type
+  onClick = () => {},
 }) {
   const base =
     'inline-block text-sm rounded-full font-semibold uppercase tracking-wide transition-colors duration-300 focus:outline-none focus:ring focus:ring-yellow-300 focus:ring-offset-2 disabled:cursor-not-allowed';
@@ -28,7 +29,7 @@ function Button({
 
   return (
     <button
-      type="button"
+      type={htmlType} // ✅ use the prop instead of hardcoding "button"
       onClick={onClick}
       disabled={disabled}
       className={styles[type]}
@@ -42,7 +43,8 @@ Button.propTypes = {
   children: PropTypes.node.isRequired,
   disabled: PropTypes.bool,
   to: PropTypes.string,
-  type: PropTypes.oneOf(['primary', 'secondary', 'small']),
+  type: PropTypes.oneOf(['primary', 'secondary', 'small', 'round']),
+  htmlType: PropTypes.oneOf(['button', 'submit', 'reset']), // ✅ new validation
   onClick: PropTypes.func,
 };
 
