@@ -1,7 +1,5 @@
-// Test ID: IIDSAT
-
-import { useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLoaderData, useFetcher } from 'react-router-dom';
 import {
   calcMinutesLeft,
   formatCurrency,
@@ -13,15 +11,28 @@ import OrderItem from './OrderItem.jsx';
 function Order() {
   const orderData = useLoaderData();
   const [order, setOrder] = useState(orderData);
+  const fetcher = useFetcher();
 
-  const { id, status, priority, priorityPrice, orderPrice, estimatedDelivery } =
-    order;
+  // ✅ Preload menu to get ingredients
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === 'idle') fetcher.load('/menu');
+  }, [fetcher]);
+
+  const {
+    id,
+    status,
+    priority,
+    priorityPrice,
+    orderPrice,
+    estimatedDelivery,
+    cart,
+  } = order;
 
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
-  // 🧩 Function to handle removing an item locally
+  // ✅ Handle removing item locally
   function handleRemoveItem(itemId) {
-    const updatedCart = order.cart.filter((item) => item.id !== itemId);
+    const updatedCart = cart.filter((item) => item.pizzaId !== itemId);
     setOrder((prev) => ({ ...prev, cart: updatedCart }));
   }
 
@@ -57,13 +68,21 @@ function Order() {
 
       {/* Cart items */}
       <ul>
-        {order.cart.map((item) => (
-          <OrderItem
-            key={item.pizzaId}
-            item={item}
-            onRemove={handleRemoveItem}
-          />
-        ))}
+        {cart.map((item) => {
+          const menuItem = fetcher?.data?.find(
+            (el) => el.id === item.pizzaId
+          );
+
+          return (
+            <OrderItem
+              key={item.pizzaId}
+              isLoadingIngredients={fetcher.state === 'loading'}
+              item={item}
+              ingredients={menuItem?.ingredients}
+              onRemove={handleRemoveItem}
+            />
+          );
+        })}
       </ul>
 
       {/* Totals */}
@@ -71,7 +90,9 @@ function Order() {
         <p className="text-sm font-medium text-stone-600">
           Price of pizzas: {formatCurrency(orderPrice)}
         </p>
-        {priority && <p>Priority fee: {formatCurrency(priorityPrice)}</p>}
+        {priority && (
+          <p>Priority fee: {formatCurrency(priorityPrice)}</p>
+        )}
         <p className="font-bold text-stone-800">
           <strong>
             To pay on delivery:{' '}
@@ -83,7 +104,7 @@ function Order() {
   );
 }
 
-// ✅ loader for React Router
+// ✅ React Router loader
 export async function loader({ params }) {
   const order = await getOrder(params.orderId);
   return order;
