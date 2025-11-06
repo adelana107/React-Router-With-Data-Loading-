@@ -44,7 +44,7 @@ function Order() {
       </div>
 
       {/* Delivery info */}
-      <div className="justify-between flex flex-wrap items-center gap-2 bg-stone-200 px-6 py-5">
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-stone-200 px-6 py-5">
         <p className="font-medium">
           {deliveryIn >= 0
             ? `Only ${deliveryIn} minutes left 😃`
@@ -58,7 +58,11 @@ function Order() {
       {/* Cart items */}
       <ul>
         {order.cart.map((item) => (
-          <OrderItem key={item.id} item={item} onRemove={handleRemoveItem} />
+          <OrderItem
+            key={item.pizzaId}
+            item={item}
+            onRemove={handleRemoveItem}
+          />
         ))}
       </ul>
 
