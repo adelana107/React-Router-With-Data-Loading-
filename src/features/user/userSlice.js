@@ -9,7 +9,7 @@ const initialState = {
   error: null,
 };
 
-// ✅ Corrected thunk using Nominatim response fields
+// ✅ Async thunk to get user location and reverse-geocode it
 export const fetchAddress = createAsyncThunk('user/fetchAddress', async () => {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
@@ -18,14 +18,17 @@ export const fetchAddress = createAsyncThunk('user/fetchAddress', async () => {
           const { latitude, longitude } = pos.coords;
           const data = await getAddress({ latitude, longitude });
 
-          // ✅ Nominatim provides `display_name` (a nice full address string)
+          // ✅ Use Nominatim’s display_name or construct readable address
           const address =
             data.display_name ||
             `${data.address.road || ''}, ${data.address.suburb || ''}, ${
-              data.address.city || data.address.town || data.address.village || ''
+              data.address.city ||
+              data.address.town ||
+              data.address.village ||
+              ''
             }, ${data.address.state || ''}, ${data.address.country || ''}`.replace(
               /,\s*,/g,
-              ','
+              ',',
             );
 
           resolve({
@@ -37,7 +40,7 @@ export const fetchAddress = createAsyncThunk('user/fetchAddress', async () => {
         }
       },
       (err) => reject(err),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true },
     );
   });
 });
@@ -61,9 +64,11 @@ const userSlice = createSlice({
         state.address = action.payload.address;
         state.position = action.payload.position;
       })
-      .addCase(fetchAddress.rejected, (state, action) => {
+      // ✅ Removed unused "action" variable
+      .addCase(fetchAddress.rejected, (state) => {
         state.status = 'error';
-        state.error = action.error.message;
+        state.error =
+          'There was a problem fetching your address. Make sure to fill this field';
       });
   },
 });
