@@ -4219,6 +4219,10 @@ img,
   gap: 1.25rem;
 }
 
+.gap-1 {
+  gap: 0.25rem;
+}
+
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(0.5rem * var(--tw-space-x-reverse));
@@ -4667,6 +4671,10 @@ img,
     margin-bottom: 4rem;
   }
 
+  .sm\:mb-0 {
+    margin-bottom: 0px;
+  }
+
   .sm\:flex {
     display: flex;
   }
@@ -4693,6 +4701,10 @@ img,
 
   .sm\:gap-6 {
     gap: 1.5rem;
+  }
+
+  .sm\:gap-8 {
+    gap: 2rem;
   }
 
   .sm\:space-x-6 > :not([hidden]) ~ :not([hidden]) {
@@ -4722,6 +4734,10 @@ img,
 
   .md\:block {
     display: block;
+  }
+
+  .md\:gap-3 {
+    gap: 0.75rem;
   }
 
   .md\:px-5 {
