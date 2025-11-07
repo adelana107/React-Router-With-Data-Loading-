@@ -7,6 +7,7 @@ import {
 } from '../../utils/helpers';
 import { getOrder } from '../../services/apiRestaurant';
 import OrderItem from './OrderItem.jsx';
+import UpdateOrder from './UpdateOrder.jsx';
 
 function Order() {
   const orderData = useLoaderData();
@@ -69,9 +70,7 @@ function Order() {
       {/* Cart items */}
       <ul>
         {cart.map((item) => {
-          const menuItem = fetcher?.data?.find(
-            (el) => el.id === item.pizzaId
-          );
+          const menuItem = fetcher?.data?.find((el) => el.id === item.pizzaId);
 
           return (
             <OrderItem
@@ -90,9 +89,7 @@ function Order() {
         <p className="text-sm font-medium text-stone-600">
           Price of pizzas: {formatCurrency(orderPrice)}
         </p>
-        {priority && (
-          <p>Priority fee: {formatCurrency(priorityPrice)}</p>
-        )}
+        {priority && <p>Priority fee: {formatCurrency(priorityPrice)}</p>}
         <p className="font-bold text-stone-800">
           <strong>
             To pay on delivery:{' '}
@@ -100,6 +97,7 @@ function Order() {
           </strong>
         </p>
       </div>
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
